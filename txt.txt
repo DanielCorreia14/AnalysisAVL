@@ -1,0 +1,33 @@
+Definição de Classes:
+
+Node: Classe que representa um nó da árvore, contendo uma chave, dados e referências para os filhos 
+à esquerda e à direita.
+BinarySearchTree: Implementa uma árvore binária de busca com métodos para inserir, buscar, 
+calcular a altura e realizar a travessia em ordem.
+AVLNode: Herda de Node, adicionando um atributo de altura.
+AVLTree: Implementa uma árvore AVL, que é uma árvore binária de busca balanceada. 
+Inclui métodos para inserção com balanceamento (rotações), cálculo de altura e balanceamento dos nós.
+
+
+Funções de Manipulação de Dados:
+
+read_csv: Lê um arquivo CSV e converte os dados em uma lista de dicionários.
+time_operations: Mede o tempo de inserção e a altura da árvore para um conjunto de dados.
+time_search_operations: Mede o tempo necessário para buscar elementos em uma árvore após a inserção.
+plot_performance: Cria gráficos de desempenho para a inserção e a altura das árvores.
+export_inorder_to_csv: Exporta a travessia em ordem da árvore para um arquivo CSV.
+generate_report: Gera um relatório em formato de texto com os resultados das medições de desempenho.
+
+
+Execução do Programa:
+
+O programa lê os dados de ClassicHit.csv.
+Divide os dados em subconjuntos de tamanhos diferentes (1000, 5000, 10000) e mede o desempenho de inserção e busca para ambas as árvores.
+Cria gráficos para visualizar o desempenho de inserção e a altura das árvores, bem como o desempenho das operações de busca.
+Exporta as árvores em ordem para arquivos CSV.
+Gera um relatório de desempenho em um arquivo de texto.
+
+
+Resultados:
+
+O programa produz gráficos e arquivos que mostram como a BST e a AVL se comportam em termos de tempo de inserção, altura e tempo de busca, facilitando a comparação entre as duas estruturas de dados.
