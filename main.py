@@ -263,76 +263,79 @@ def plot_songs_by_year(data):
     plt.ylabel('Número de Músicas')
     plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.savefig('songs_by_year.png')
+    plt.savefig('musicas_por_ano.png')
 
-# Função para gerar um relatório em TXT
-def generate_performance_report(bst_results, avl_results, file_name):
-    with open(file_name, 'w') as f:
-        f.write("Relatório de Desempenho - Árvore Binária de Busca (BST) vs Árvore AVL\n")
-        f.write("=====================================================================\n\n")
-        
-        f.write("Comparação de Tempo de Inserção:\n")
-        for size in bst_results['sizes']:
-            f.write(f"Tamanho do Conjunto de Dados: {size} - BST: {bst_results['insert_times'][size]:.6f} seg, AVL: {avl_results['insert_times'][size]:.6f} seg\n")
-        
-        f.write("\nComparação de Altura das Árvores:\n")
-        for size in bst_results['sizes']:
-            f.write(f"Tamanho do Conjunto de Dados: {size} - BST: {bst_results['heights'][size]}, AVL: {avl_results['heights'][size]}\n")
-        
-        f.write("\nComparação de Tempo de Busca:\n")
-        for size in bst_results['sizes']:
-            f.write(f"Tamanho do Conjunto de Dados: {size} - BST: {bst_results['search_times'][size]:.6f} seg, AVL: {avl_results['search_times'][size]:.6f} seg\n")
+# função para gerar o relatório
+import pandas as pd
 
-# Função principal
+def generate_report(data):
+    df = pd.DataFrame(data)
+
+    # convertendo 'Popularity' para numérico, transformando não numéricos em NaN
+    df['Popularity'] = pd.to_numeric(df['Popularity'], errors='coerce')  
+    df.dropna(subset=['Popularity'], inplace=True)  
+
+    # Distribuição de generos
+    genre_distribution = df['Genre'].value_counts()
+    
+    # média de popularidade
+    avg_popularity = df['Popularity'].mean()
+    
+    # filtrando apenas colunas numericas para calcular a correlação
+    numeric_df = df.select_dtypes(include='number')
+    correlation = numeric_df.corr()
+
+    # agrupamento por artista
+    artist_grouping = df.groupby('Artist')['Popularity'].mean()
+
+    # Gerando o relatório em um arquivo
+    with open('performance_report.txt', 'w') as f:
+        f.write('Relatório de Performance\n\n')
+        f.write('Distribuição de Gêneros:\n')
+        f.write(genre_distribution.to_string())
+        f.write('\n\nMédia de Popularidade: {:.2f}\n'.format(avg_popularity))
+        f.write('\nCorrelação entre Atributos:\n')
+        f.write(correlation.to_string())
+        f.write('\n\nMédia de Popularidade por Artista:\n')
+        f.write(artist_grouping.to_string())
+
+
+
+
+
+# função principal
 def main():
     file_name = 'ClassicHit.csv'
     data = read_csv(file_name)
-    
-    bst_insert_times = {}
-    avl_insert_times = {}
-    bst_heights = {}
-    avl_heights = {}
-    bst_search_times = {}
-    avl_search_times = {}
-    subset_sizes = [1000, 5000, 10000]
+
+    subset_sizes = [100, 500, 1000, 5000, 10000]
+    bst_times = []
+    avl_times = []
+    bst_heights = []
+    avl_heights = []
+    search_bst_times = []
+    search_avl_times = []
 
     for size in subset_sizes:
-        subset_data = data[:size]
+        subset = random.sample(data, size)
+        
+        bst_time, bst_height = time_operations(BinarySearchTree, subset, 'Track')
+        avl_time, avl_height = time_operations(AVLTree, subset, 'Track')
+        
+        bst_times.append(bst_time)
+        avl_times.append(avl_time)
+        bst_heights.append(bst_height)
+        avl_heights.append(avl_height)
+        
+        search_bst_time = time_search_operations(BinarySearchTree, subset, 'Track')
+        search_avl_time = time_search_operations(AVLTree, subset, 'Track')
+        
+        search_bst_times.append(search_bst_time)
+        search_avl_times.append(search_avl_time)
 
-        bst_time, bst_height = time_operations(BinarySearchTree, subset_data, 'Track')
-        avl_time, avl_height = time_operations(AVLTree, subset_data, 'Track')
-
-        bst_insert_times[size] = bst_time
-        avl_insert_times[size] = avl_time
-        bst_heights[size] = bst_height
-        avl_heights[size] = avl_height
-
-        bst_search_time = time_search_operations(BinarySearchTree, subset_data, 'Track')
-        avl_search_time = time_search_operations(AVLTree, subset_data, 'Track')
-
-        bst_search_times[size] = bst_search_time
-        avl_search_times[size] = avl_search_time
-
-    # Prepare data for report
-    bst_results = {
-        'sizes': subset_sizes,
-        'insert_times': bst_insert_times,
-        'heights': bst_heights,
-        'search_times': bst_search_times
-    }
-    
-    avl_results = {
-        'sizes': subset_sizes,
-        'insert_times': avl_insert_times,
-        'heights': avl_heights,
-        'search_times': avl_search_times
-    }
-
-    plot_performance(subset_sizes, list(bst_insert_times.values()), list(avl_insert_times.values()), list(bst_heights.values()), list(avl_heights.values()), list(bst_search_times.values()), list(avl_search_times.values()), 'performance')
-
-    generate_performance_report(bst_results, avl_results, 'performance_report.txt')
-
+    plot_performance(subset_sizes, bst_times, avl_times, bst_heights, avl_heights, search_bst_times, search_avl_times, 'desempenho_arvores')
     plot_songs_by_year(data)
+    generate_report(data)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
